@@ -33,14 +33,15 @@ export default function OptimisticUpdatesDemo() {
 
   const toggleItem = async (id: number) => {
     const { todos } = await toggleTodoCall(id);
-
     setTodos(todos);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">React 19 useOptimistic Demo</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">
+          React 19 useOptimistic & Form State Demo
+        </h1>
 
         <ToDoList items={todos} addItem={addItem} toggleItem={toggleItem} />
 

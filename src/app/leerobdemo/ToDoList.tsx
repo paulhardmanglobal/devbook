@@ -1,7 +1,6 @@
-import { useOptimistic, startTransition, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useOptimistic, startTransition } from 'react';
 
-import { CheckBoxToggle, SubmitButton, ToggleButton } from '@/app/leerobdemo/components';
+import { SubmitButton, ToggleButton } from '@/app/leerobdemo/components';
 export type Todo = {
   id: number;
   text: string;
@@ -9,10 +8,7 @@ export type Todo = {
   optimistic?: boolean;
 };
 
-type TodoAction =
-  | { type: 'add'; todo: Todo }
-  | { type: 'toggle'; id: number }
-  | { type: 'update'; todos: Todo[] };
+type TodoAction = { type: 'add'; todo: Todo } | { type: 'toggle'; id: number };
 
 export type ToDoListProps = {
   items: Todo[];
@@ -21,7 +17,6 @@ export type ToDoListProps = {
 };
 
 export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
-  const [isPending, setIsPending] = useState(false); // 🔹 Global loading state
   const [optimisticTodos, addOptimisticTodo] = useOptimistic<Todo[], TodoAction>(
     items,
     (currentTodos, action) => {
@@ -32,11 +27,6 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
           return currentTodos.map((todo) =>
             todo.id === action.id ? { ...todo, completed: !todo.completed, optimistic: true } : todo
           );
-        case 'update':
-          return currentTodos.map((todo) => ({
-            ...todo,
-            optimistic: false, // Ensure real data replaces optimistic state
-          }));
       }
     }
   );
@@ -51,13 +41,26 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
     addOptimisticTodo({ type: 'add', todo: newTodo });
     await addItem(newTodo.text);
   }
-  const handleToggleTodo = async (id: number) => {
+
+  // For the Form action
+  const handleToggleTodoForm = async (id: number) => {
+    addOptimisticTodo({ type: 'toggle', id });
+    await toggleItem(id);
+  };
+
+  // For the button action
+  const handleToggleTodoButton = async (id: number) => {
     startTransition(async () => {
       addOptimisticTodo({ type: 'toggle', id });
       await toggleItem(id);
-      console.log(isPending);
     });
   };
+
+  // write a function to check if any of the optimistic todos are still in the optimistic state
+  // if they
+  // are, then we should disable the button
+  // if they are not, then we should enable the button
+  const isProcessing = optimisticTodos.some((todo) => todo.optimistic);
 
   return (
     <>
@@ -80,50 +83,22 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
               todo.completed ? 'bg-gray-50' : 'bg-white'
             } ${todo.optimistic ? 'opacity-50' : ''}`}
           >
-            <form action={async () => handleToggleTodo(todo.id)} className="mr-3 flex-shrink-0">
-              <label className="relative cursor-pointer">
-                <CheckBoxToggle completed={todo.completed} />
-                <div
-                  className={`w-5 h-5 border border-gray-400 rounded-md flex items-center justify-center transition-colors ${
-                    todo.completed ? 'bg-green-500 border-green-500' : 'bg-white'
-                  }`}
-                >
-                  {todo.completed && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="white"
-                      width="16"
-                      height="16"
-                    >
-                      <path d="M9.55 18l-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z" />
-                    </svg>
-                  )}
-                </div>
-              </label>
-            </form>
+            {/* Disabled to stop race conditions */}
+            {/* But using a form  */}
+
+            {/* <CheckBoxForm
+              completed={todo.completed}
+              disabled={isProcessing}
+              handleToggle={async () => handleToggleTodoForm(todo.id)}
+              key={todo.id}
+            /> */}
 
             {/* Disabled to stop race conditions */}
-
-            {/* <button onClick={() => handleToggleTodo(todo.id)} className="mr-3 flex-shrink-0">
-                <div
-                  className={`w-5 h-5 border border-gray-400 rounded-md flex items-center justify-center transition-colors ${
-                    todo.completed ? 'bg-green-500 border-green-500' : 'bg-white'
-                  }`}
-                >
-                  {todo.completed && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="white"
-                      width="16"
-                      height="16"
-                    >
-                      <path d="M9.55 18l-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z" />
-                    </svg>
-                  )}
-                </div>
-              </button> */}
+            <ToggleButton
+              handleToggle={() => handleToggleTodoButton(todo.id)}
+              completed={todo.completed}
+              disabled={isProcessing}
+            />
             <span
               className={`flex-1 transition-all ${
                 todo.completed ? 'text-gray-500 line-through' : 'text-gray-800'

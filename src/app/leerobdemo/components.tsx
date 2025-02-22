@@ -1,3 +1,4 @@
+import exp from 'constants';
 import { ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -22,14 +23,20 @@ export const SubmitButton = () => {
 export const ToggleButton = ({
   handleToggle,
   completed,
+  disabled,
 }: {
   handleToggle: any;
   completed: boolean;
+  disabled: boolean;
 }) => {
   const { pending } = useFormStatus();
 
   return (
-    <button onClick={handleToggle} className="mr-3 flex-shrink-0">
+    <button
+      onClick={handleToggle}
+      disabled={disabled || pending}
+      className=" mr-3  disabled:cursor-not-allowed"
+    >
       <div
         className={`w-5 h-5 border border-gray-400 rounded-md flex items-center justify-center transition-colors ${
           completed ? 'bg-green-500 border-green-500' : 'bg-white'
@@ -51,18 +58,59 @@ export const ToggleButton = ({
   );
 };
 
-export const CheckBoxToggle = ({ completed }: { completed: boolean }) => {
+export const CheckBoxToggle = ({
+  completed,
+  disabled,
+}: {
+  completed: boolean;
+  disabled: boolean;
+}) => {
   const { pending } = useFormStatus();
   return (
     <input
       type="checkbox"
       name="completed"
       checked={completed}
-      disabled={pending}
+      disabled={pending || disabled}
       onChange={(e) => {
         e.target.form?.requestSubmit();
       }}
       className="sr-only"
     />
+  );
+};
+
+export const CheckBoxForm = ({
+  handleToggle,
+  completed,
+  disabled,
+}: {
+  handleToggle: any;
+  completed: boolean;
+  disabled: boolean;
+}) => {
+  return (
+    <form action={handleToggle} className="mr-3 flex-shrink-0">
+      <label className="relative cursor-pointer">
+        <CheckBoxToggle disabled={disabled} completed={completed} />
+        <div
+          className={`w-5 h-5 border border-gray-400 rounded-md flex items-center justify-center transition-colors ${
+            completed ? 'bg-green-500 border-green-500' : 'bg-white'
+          }   ${disabled ? 'cursor-not-allowed' : ''}     `}
+        >
+          {completed && (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="white"
+              width="16"
+              height="16"
+            >
+              <path d="M9.55 18l-5.7-5.7 1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z" />
+            </svg>
+          )}
+        </div>
+      </label>
+    </form>
   );
 };
