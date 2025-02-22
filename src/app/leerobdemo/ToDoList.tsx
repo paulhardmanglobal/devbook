@@ -75,43 +75,49 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
           <SubmitButton />
         </div>
       </form>
-      <ul className="space-y-2">
-        {optimisticTodos.map((todo, index) => (
-          <li
-            key={`${todo.id}-${index}`}
-            className={`flex items-center p-3 border rounded-md transition-all ${
-              todo.completed ? 'bg-gray-50' : 'bg-white'
-            } ${todo.optimistic ? 'opacity-50' : ''}`}
-          >
-            {/* Disabled to stop race conditions */}
-            {/* But using a form  */}
+      {items.length < 1 ? (
+        <div className="flex justify-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {optimisticTodos.map((todo, index) => (
+            <li
+              key={`${todo.id}-${index}`}
+              className={`flex items-center p-3 border rounded-md transition-all ${
+                todo.completed ? 'bg-gray-50' : 'bg-white'
+              } ${todo.optimistic ? 'opacity-50' : ''}`}
+            >
+              {/* Disabled to stop race conditions */}
+              {/* But using a form  */}
 
-            {/* <CheckBoxForm
+              {/* <CheckBoxForm
               completed={todo.completed}
               disabled={isProcessing}
               handleToggle={async () => handleToggleTodoForm(todo.id)}
               key={todo.id}
             /> */}
 
-            {/* Disabled to stop race conditions */}
-            <ToggleButton
-              handleToggle={() => handleToggleTodoButton(todo.id)}
-              completed={todo.completed}
-              disabled={isProcessing}
-            />
-            <span
-              className={`flex-1 transition-all ${
-                todo.completed ? 'text-gray-500 line-through' : 'text-gray-800'
-              }`}
-            >
-              {todo.text}
-              {todo.optimistic && (
-                <span className="text-xs text-gray-400 ml-1">{'(Saving...)'}</span>
-              )}
-            </span>
-          </li>
-        ))}
-      </ul>
+              {/* Disabled to stop race conditions */}
+              <ToggleButton
+                handleToggle={() => handleToggleTodoButton(todo.id)}
+                completed={todo.completed}
+                disabled={isProcessing}
+              />
+              <span
+                className={`flex-1 transition-all ${
+                  todo.completed ? 'text-gray-500 line-through' : 'text-gray-800'
+                }`}
+              >
+                {todo.text}
+                {todo.optimistic && (
+                  <span className="text-xs text-gray-400 ml-1">{'(Saving...)'}</span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 };

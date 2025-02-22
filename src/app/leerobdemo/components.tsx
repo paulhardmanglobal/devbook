@@ -1,21 +1,22 @@
-import exp from 'constants';
-import { ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 
 export const SubmitButton = () => {
-  const { data, method, pending } = useFormStatus();
-
-  // gives me access to my form values
-  // console.log(data?.get('todo'));
-  // console.log(method);
+  const { pending } = useFormStatus();
 
   return (
     <button
       type="submit"
       disabled={pending}
-      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50"
+      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:bg-blue-300 disabled:cursor-not-allowed"
     >
-      {'Add'}
+      {pending ? (
+        <>
+          <span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span>
+          Adding...
+        </>
+      ) : (
+        'Add'
+      )}
     </button>
   );
 };
