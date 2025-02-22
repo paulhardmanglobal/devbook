@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User } from '@/app/components/UserCard';
+import { type User } from '@/app/components/UserCard';
 
 export const useFetchUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
