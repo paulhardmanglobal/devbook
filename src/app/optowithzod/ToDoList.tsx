@@ -1,12 +1,17 @@
-import { useOptimistic, startTransition } from 'react';
-
+import { useOptimistic, startTransition, useActionState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { todoSchema, todoSchemaType } from '@/app/optowithzod/schema';
 import { SubmitButton, ToggleButton } from '@/app/leerobdemo/components';
+import { CheckBoxForm } from '@/app/optowithzod/components';
 export type Todo = {
   id: number;
   text: string;
   completed: boolean;
-  optimistic?: boolean;
 };
+
+// @todo don't call it optimistic, call it pending
+type OptimisticTodos = Todo & { optimistic?: boolean };
 
 type TodoAction = { type: 'add'; todo: Todo } | { type: 'toggle'; id: number };
 
@@ -17,7 +22,17 @@ export type ToDoListProps = {
 };
 
 export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
-  const [optimisticTodos, addOptimisticTodo] = useOptimistic<Todo[], TodoAction>(
+  const {
+    register,
+    trigger,
+    reset,
+    formState: { errors },
+  } = useForm<todoSchemaType>({
+    resolver: zodResolver(todoSchema),
+    defaultValues: { text: '' },
+  });
+
+  const [optimisticTodos, addOptimisticTodo] = useOptimistic<OptimisticTodos[], TodoAction>(
     items,
     (currentTodos, action) => {
       switch (action.type) {
@@ -30,16 +45,19 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
       }
     }
   );
-  async function formAction(formData: FormData) {
+  async function formAction(data: any) {
+    const res = await trigger(['text']);
+
+    if (!res) return;
+
     const newTodo: Todo = {
       id: Math.random(),
-      text: formData.get('todo') as string,
+      text: data.get('text') as string,
       completed: false,
-      optimistic: true,
     };
 
     addOptimisticTodo({ type: 'add', todo: newTodo });
-    await addItem(formData.get('todo') as string);
+    await addItem(data.get('text'));
   }
 
   // For the Form action
@@ -65,14 +83,18 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
   return (
     <>
       <form action={formAction} className="mb-6">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            name="todo"
-            placeholder="Add a new todo"
-            className="flex-1 text-black px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <SubmitButton />
+        <div className="flex gap-2 w-full flex-col">
+          <div className="flex gap-2 w-full">
+            <input
+              {...register('text')}
+              type="text"
+              placeholder="Add a new todo"
+              className="flex-1 text-black px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            <SubmitButton />
+          </div>
+          {errors.text && <span className="text-red-500 text-sm">{errors.text?.message}</span>}
         </div>
       </form>
       {items.length < 1 ? (
@@ -86,34 +108,33 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
               key={`${todo.id}-${index}`}
               className={`flex items-center p-3 border rounded-md transition-all ${
                 todo.completed ? 'bg-gray-50' : 'bg-white'
-              } ${todo.optimistic ? 'opacity-50' : ''}`}
+              }`}
             >
               {/* Disabled to stop race conditions */}
               {/* But using a form  */}
-
-              {/* <CheckBoxForm
-              completed={todo.completed}
-              disabled={isProcessing}
-              handleToggle={async () => handleToggleTodoForm(todo.id)}
-              key={todo.id}
-            /> */}
+              <CheckBoxForm
+                disabled={isProcessing}
+                completed={todo.completed}
+                handleToggle={async () => handleToggleTodoForm(todo.id)}
+                key={todo.id}
+              />
 
               {/* Disabled to stop race conditions */}
-              <ToggleButton
+              {/* <ToggleButton
                 handleToggle={() => handleToggleTodoButton(todo.id)}
                 completed={todo.completed}
-                disabled={isProcessing}
-              />
+                disabled={false}
+              /> */}
               <span
                 className={`flex-1 transition-all ${
                   todo.completed ? 'text-gray-500 line-through' : 'text-gray-800'
                 }`}
               >
                 {todo.text}
-                {todo.optimistic && (
-                  <span className="text-xs text-gray-400 ml-1">{'(Saving...)'}</span>
-                )}
               </span>
+              {todo.optimistic && (
+                <span className="text-xs text-gray-400 ml-1">{'(Saving...)'}</span>
+              )}
             </li>
           ))}
         </ul>

@@ -10,17 +10,16 @@ export const getTodosCall = async () => {
 };
 
 export const addTodoCall = async (text: string) => {
-  const res = await fetch('/api/todos', {
+  const items = await fetch('/api/todos', {
     method: 'POST',
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ todo: { text } }),
     headers: {
       'Content-Type': 'application/json',
     },
   });
-  const response = await res.json();
-  // console.log(response);
 
-  return res.json();
+  const response = await items.json();
+  return response;
 };
 
 export const toggleTodoCall = async (id: number) => {

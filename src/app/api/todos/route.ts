@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-interface Todo {
+
+// lets clean up the BE and the posting of the todos
+type Todo = {
   id: number;
   text: string;
   completed: boolean;
-}
+};
 let todos: Todo[] = [
   { id: 1, text: 'Learn React 19', completed: false },
   { id: 2, text: 'Master useOptimistic', completed: false },
@@ -23,7 +25,9 @@ export async function POST(request: NextRequest) {
   try {
     await delay(2000); // 2-second delay
     const body = await request.json();
-    todos = [...todos, body.todo];
+    const { text } = body.todo; // Extract text from the todo object
+
+    todos = [...todos, { text, completed: false, id: Math.random() }];
     return NextResponse.json({
       todos,
     });
