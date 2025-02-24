@@ -59,28 +59,21 @@ export const ToggleButton = ({
   );
 };
 
-export const CheckBoxToggle = ({
-  completed,
-  disabled,
-  value,
-}: {
-  value: number;
-  completed: boolean;
-  disabled: boolean;
-}) => {
+export const CheckBoxToggle = ({ disabled, value }: { value: number; disabled: boolean }) => {
   const { pending } = useFormStatus();
   return (
-    <input
-      type="checkbox"
-      name="completed"
-      value={value}
-      checked={completed}
-      disabled={pending || disabled}
-      onChange={(e) => {
-        e.target.form?.requestSubmit();
-      }}
-      className="sr-only"
-    />
+    <>
+      <input type="hidden" name="todoId" value={value} />
+      <input
+        type="checkbox"
+        name="completed"
+        disabled={pending || disabled}
+        onChange={(e) => {
+          e.target.form?.requestSubmit();
+        }}
+        className="sr-only"
+      />
+    </>
   );
 };
 
@@ -88,9 +81,9 @@ export const CheckBoxForm = ({
   formAction,
   completed,
   disabled,
-  id,
+  value,
 }: {
-  id: number;
+  value: number;
   formAction: any;
   completed: boolean;
   disabled: boolean;
@@ -98,11 +91,11 @@ export const CheckBoxForm = ({
   return (
     <form action={formAction} className="mr-3 flex-shrink-0">
       <label className="relative cursor-pointer">
-        <CheckBoxToggle value={id} disabled={disabled} completed={completed} />
+        <CheckBoxToggle value={value} disabled={disabled} />
         <div
           className={`w-5 h-5 border border-gray-400 rounded-md flex items-center justify-center transition-colors ${
             completed ? 'bg-green-500 border-green-500' : 'bg-white'
-          }   ${disabled ? 'cursor-not-allowed' : ''}     `}
+          }   ${disabled ? 'cursor-not-allowed' : ''}`}
         >
           {completed && (
             <svg

@@ -1,4 +1,11 @@
-import { useOptimistic, useActionState, SetStateAction, Dispatch, useEffect } from 'react';
+import {
+  useOptimistic,
+  useActionState,
+  SetStateAction,
+  Dispatch,
+  useEffect,
+  useState,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { todoSchema, todoSchemaType } from '@/app/zodpod/schema';
@@ -20,6 +27,7 @@ type ToDoListProps = {
 };
 
 export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -97,6 +105,7 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
       setTodos(response.todos);
     } catch (error) {
       console.error('Error adding todo:', error);
+      setError('Error adding todo');
 
       // Remove the optimistic todo that failed
       setTodos((prevTodos) => {
@@ -105,7 +114,17 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
     }
   }
 
-  async function toggleItemTodoInListAction(id: number) {
+  async function toggleItemTodoInListAction(prevState: any, data: FormData) {
+    const idRaw = data.get('todoId') as string; // @rename from todoI to
+
+    // Check what is actually received
+    const id = Number(idRaw);
+
+    if (isNaN(id) || id === 0) {
+      console.error('Invalid ID received for toggling:', idRaw);
+      return;
+    }
+
     addOptimisticTodo({
       type: 'toggle',
       id,
@@ -128,7 +147,7 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
       setTodos(response.todos); // Ensure you replace todos with the latest data
     } catch (error) {
       console.error('Error toggling todo:', error);
-
+      setError('Error toggling todo');
       addOptimisticTodo({
         type: 'toggle',
         id, // Toggle it back to its original state
@@ -137,10 +156,16 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
   }
 
   const [_, moddedAction, pendingState] = useActionState(addItemToListAction, null);
-
+  const [x, moddedToggle, pendingToggle] = useActionState(toggleItemTodoInListAction, null);
   const isProcessing = optimisticTodos?.some((todo) => todo?.optimistic);
 
   const isLoading = todos.length < 1 && !optimisticTodos.some((todo) => todo.optimistic);
+
+  useEffect(() => {
+    if (pendingState || pendingToggle) {
+      setError(null); // Clear the error when a new request starts
+    }
+  }, [pendingState, pendingToggle]);
 
   return (
     <>
@@ -176,9 +201,9 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
               <CheckBoxForm
                 disabled={isProcessing}
                 completed={todo.completed}
-                formAction={async () => toggleItemTodoInListAction(todo.id)}
+                formAction={moddedToggle}
                 key={todo.id}
-                id={todo.id}
+                value={todo.id}
               />
 
               <span
@@ -195,6 +220,7 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
           ))}
         </ul>
       )}
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </>
   );
 };
