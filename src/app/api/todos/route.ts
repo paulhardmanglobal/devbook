@@ -15,7 +15,6 @@ let todos: Todo[] = [
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // GET endpoint
 export async function GET() {
-  // @mock slow network
   await delay(2000);
   return NextResponse.json({ todos });
 }
@@ -24,9 +23,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     await delay(2000); // 2-second delay
+
+    if (Math.random() < 0.3) {
+      throw new Error('Random server error occurred');
+    }
     const body = await request.json();
     const { text } = body.todo; // Extract text from the todo object
-    // throw new Error('Todo text cannot be empty');
+
     todos = [...todos, { text, completed: false, id: Math.random() }];
     return NextResponse.json({
       todos,
@@ -41,6 +44,9 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     await delay(2000); // 2-second delay
+    if (Math.random() < 0.3) {
+      throw new Error('Random server error occurred');
+    }
     const body = await request.json();
     const { id } = body;
     todos = todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo));
