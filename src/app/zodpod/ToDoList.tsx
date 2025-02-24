@@ -157,6 +157,9 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
 
   const [_, moddedAction, pendingState] = useActionState(addItemToListAction, null);
   const [x, moddedToggle, pendingToggle] = useActionState(toggleItemTodoInListAction, null);
+
+  console.log(_);
+  console.log(x);
   const isProcessing = optimisticTodos?.some((todo) => todo?.optimistic);
 
   const isLoading = todos.length < 1 && !optimisticTodos.some((todo) => todo.optimistic);
