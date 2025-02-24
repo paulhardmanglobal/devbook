@@ -21,7 +21,7 @@ export type ToDoListProps = {
   toggleItem: any;
 };
 
-export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
+export const ToDoList = ({ addItem, items = [], toggleItem }: ToDoListProps) => {
   const {
     register,
     trigger,
@@ -45,19 +45,42 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
       }
     }
   );
-  async function formAction(data: any) {
+  async function formAction(prevState: any, data: any) {
     const res = await trigger(['text']);
 
     if (!res) return;
 
-    const newTodo: Todo = {
+    const newTodo = {
       id: Math.random(),
       text: data.get('text') as string,
       completed: false,
+      optimistic: true,
     };
 
-    addOptimisticTodo({ type: 'add', todo: newTodo });
-    await addItem(data.get('text'));
+    addOptimisticTodo({
+      type: 'add',
+      todo: {
+        id: Math.random(),
+        text: data.get('text') as string,
+        completed: false,
+      },
+    });
+
+    try {
+      await addItem(data.get('text'));
+      // If the API call succeeds, remove the optimistic flag
+      addOptimisticTodo({
+        type: 'add',
+        todo: { ...newTodo },
+      });
+    } catch (error) {
+      console.error('Error adding todo:', error);
+      // If the API call fails, remove the optimistic todo
+      addOptimisticTodo({
+        type: 'toggle',
+        id: newTodo.id,
+      });
+    }
   }
 
   // For the Form action
@@ -74,19 +97,22 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
     });
   };
 
+  const [x, moddedAction, pendingState] = useActionState(formAction, null);
+
   // write a function to check if any of the optimistic todos are still in the optimistic state
   // if they
   // are, then we should disable the button
   // if they are not, then we should enable the button
-  const isProcessing = optimisticTodos.some((todo) => todo.optimistic);
+  const isProcessing = optimisticTodos?.some((todo) => todo?.optimistic);
 
   return (
     <>
-      <form action={formAction} className="mb-6">
+      <form action={moddedAction} className="mb-6">
         <div className="flex gap-2 w-full flex-col">
           <div className="flex gap-2 w-full">
             <input
               {...register('text')}
+              disabled={pendingState}
               type="text"
               placeholder="Add a new todo"
               className="flex-1 text-black px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -123,7 +149,7 @@ export const ToDoList = ({ addItem, items, toggleItem }: ToDoListProps) => {
               {/* <ToggleButton
                 handleToggle={() => handleToggleTodoButton(todo.id)}
                 completed={todo.completed}
-                disabled={false}
+                disabled={isProcessing}
               /> */}
               <span
                 className={`flex-1 transition-all ${

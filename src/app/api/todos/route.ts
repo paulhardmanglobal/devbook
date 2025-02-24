@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     await delay(2000); // 2-second delay
     const body = await request.json();
     const { text } = body.todo; // Extract text from the todo object
-
+    // throw new Error('Todo text cannot be empty');
     todos = [...todos, { text, completed: false, id: Math.random() }];
     return NextResponse.json({
       todos,
@@ -44,6 +44,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { id } = body;
     todos = todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo));
+
     return NextResponse.json({
       todos,
     });
