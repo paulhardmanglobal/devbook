@@ -28,18 +28,6 @@ type ToDoListProps = {
 
 export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchTodos = async () => {
-      try {
-        const res = await fetch('/api/todos');
-        const { todos } = await res.json();
-        setTodos(todos);
-      } catch (error) {
-        console.error('Error fetching todos:', error);
-      }
-    };
-    fetchTodos();
-  }, []);
 
   const {
     register,
@@ -51,7 +39,6 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
     defaultValues: { text: '' },
   });
 
-  // @rename from addOptimisticTodo to something more generic
   const [optimisticTodos, addOptimisticTodo] = useOptimistic<OptimisticTodos[], TodoAction>(
     todos,
     (currentTodos, action) => {

@@ -1,11 +1,28 @@
 'use client';
 
 import { ToDoList } from '@/app/zodpod/ToDoList';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
+const fetchTodos = async () => {
+  const res = await fetch('/api/todos');
+  if (!res.ok) throw new Error('Failed to fetch todos');
+  const { todos } = await res.json();
+  return todos;
+};
 export default function OptimisticUpdatesDemo() {
   const [todos, setTodos] = useState<any[]>([]);
-
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const res = await fetch('/api/todos');
+        const { todos } = await res.json();
+        setTodos(todos);
+      } catch (error) {
+        console.error('Error fetching todos:', error);
+      }
+    };
+    fetchTodos();
+  }, []);
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
