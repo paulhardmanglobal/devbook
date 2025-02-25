@@ -135,27 +135,29 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
     } catch (error) {
       console.error('Error toggling todo:', error);
       setError('Error toggling todo');
-      addOptimisticTodo({
-        type: 'toggle',
-        id, // Toggle it back to its original state
-      });
+      const originalTodos = [...optimisticTodos];
+      console.log('originalTodos are ');
+      console.log(originalTodos);
+      setTodos(originalTodos);
+      // addOptimisticTodo({
+      //   type: 'toggle',
+      //   id, // Toggle it back to its original state
+      // });
     }
   }
 
-  const [_, moddedAction, pendingState] = useActionState(addItemToListAction, null);
-  const [x, moddedToggle, pendingToggle] = useActionState(toggleItemTodoInListAction, null);
+  const [, moddedAction, pendingState] = useActionState(addItemToListAction, null);
+  const [, moddedToggle, pendingToggle] = useActionState(toggleItemTodoInListAction, null);
 
-  console.log(_);
-  console.log(x);
   const isProcessing = optimisticTodos?.some((todo) => todo?.optimistic);
 
   const isLoading = todos.length < 1 && !optimisticTodos.some((todo) => todo.optimistic);
 
   useEffect(() => {
-    if (pendingState || pendingToggle) {
-      setError(null); // Clear the error when a new request starts
+    if (error && (pendingState || pendingToggle)) {
+      setError(null);
     }
-  }, [pendingState, pendingToggle]);
+  }, [pendingState, pendingToggle, error]);
 
   return (
     <>
@@ -183,7 +185,7 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
         <ul className="space-y-2">
           {optimisticTodos.map((todo, index) => (
             <li
-              key={`${todo.id}-${index}`}
+              key={todo.id}
               className={`flex items-center p-3 border rounded-md transition-all ${
                 todo.completed ? 'bg-gray-50' : 'bg-white'
               }`}
