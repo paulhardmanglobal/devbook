@@ -8,9 +8,9 @@ import {
 } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { todoSchema, todoSchemaType } from '@/app/zodpod/schema';
-import { SubmitButton } from '@/app/zodpod/components';
-import { CheckBoxForm } from '@/app/zodpod/components';
+import { todoSchema, todoSchemaType } from '@/app/use-optimistic-example/schema';
+import { SubmitButton } from '@/app/components/formcomponents';
+import { CheckBoxForm } from '@/app/components/formcomponents';
 
 export type Todo = {
   id: number;
