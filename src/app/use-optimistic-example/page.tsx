@@ -3,15 +3,18 @@
 import { ToDoList } from '@/app/use-optimistic-example/ToDoList';
 import React, { useState, useEffect } from 'react';
 
-const fetchTodos = async () => {
-  const res = await fetch('/api/todos');
-  if (!res.ok) throw new Error('Failed to fetch todos');
-  const { todos } = await res.json();
-  return todos;
-};
 export default function OptimisticUpdatesDemo() {
   const [todos, setTodos] = useState<any[]>([]);
   useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const res = await fetch('/api/todos');
+        const { todos } = await res.json();
+        setTodos(todos);
+      } catch (error) {
+        console.error('Error fetching todos:', error);
+      }
+    };
     fetchTodos();
   }, []);
   return (

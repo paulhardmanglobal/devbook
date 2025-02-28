@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   try {
     await delay(2000); // 2-second delay
 
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.33) {
       throw new Error('Random server error occurred');
     }
     const body = await request.json();

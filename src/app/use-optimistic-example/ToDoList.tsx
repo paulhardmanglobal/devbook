@@ -136,8 +136,7 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
       console.error('Error toggling todo:', error);
       setError('Error toggling todo');
       const originalTodos = [...optimisticTodos];
-      console.log('originalTodos are ');
-      console.log(originalTodos);
+
       setTodos(originalTodos);
       // addOptimisticTodo({
       //   type: 'toggle',
