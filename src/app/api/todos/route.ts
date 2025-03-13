@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// lets clean up the BE and the posting of the todos
 type Todo = {
   id: number;
   text: string;
   completed: boolean;
 };
 let todos: Todo[] = [
-  { id: 1, text: 'Learn React 19', completed: false },
-  { id: 2, text: 'Master useOptimistic', completed: false },
-  { id: 3, text: 'Build something cool', completed: false },
+  { id: 1, text: 'Learn about Next API routes', completed: false },
+  { id: 2, text: 'Learn about React Forms', completed: false },
+  { id: 3, text: 'Master use Optimistic', completed: false },
 ];
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

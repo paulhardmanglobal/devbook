@@ -34,7 +34,6 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
     if (!res) return;
 
     const newTodoText = data.get('text') as string;
-    const optimisticId = Math.random();
 
     reset();
 
@@ -60,11 +59,6 @@ export const ToDoList = ({ todos = [], setTodos }: ToDoListProps) => {
     } catch (error) {
       console.error('Error adding todo:', error);
       setError('Error adding todo');
-
-      // Remove the optimistic todo that failed
-      setTodos((prevTodos) => {
-        return prevTodos.filter((todo) => todo.id !== optimisticId);
-      });
       setIsLoading(false);
     }
   }

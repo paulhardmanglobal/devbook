@@ -1,6 +1,6 @@
 'use client';
 
-import { ToDoList } from '@/app/basic-todo-list/ToDoList';
+import { ToDoList } from '@/app/demo-todo-list/optimistic-start/ToDoList';
 import React, { useState, useEffect } from 'react';
 
 export default function OptimisticUpdatesDemo() {
@@ -22,13 +22,9 @@ export default function OptimisticUpdatesDemo() {
 
         <ToDoList todos={todos} setTodos={setTodos} />
         <div className="mt-6 text-sm text-gray-600">
-          <p>This demo showcases a basic to do list that you would build using react</p>
+          <p>This demo showcases a to do list that you would build using react</p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>
-              This form implements ZOD for validation, and react hook form to handle submission
-            </li>
             <li>We will update this code in a code along to implement reacts useOptimistic hook</li>
-            <li>Click a todo to toggle completion state</li>
           </ul>
         </div>
       </div>

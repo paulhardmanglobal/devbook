@@ -1,6 +1,6 @@
 'use client';
 
-import { ToDoList } from '@/app/basic-todo-list/ToDoList';
+import { ToDoList } from '@/app/demo-todo-list/optimistic-end/ToDoList';
 import React, { useState, useEffect } from 'react';
 
 export default function OptimisticUpdatesDemo() {
